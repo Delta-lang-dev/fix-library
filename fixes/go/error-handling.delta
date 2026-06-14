@@ -1,0 +1,24 @@
+// fix: Go error handling modernisation
+// lang: Go
+// severity: bug
+// Wraps bare error returns with context using fmt.Errorf.
+// Bare errors lose context as they propagate up the call stack.
+
+// ─── Fix 1: return err → return fmt.Errorf("context: %w", err) ───────────
+// Detection guard — flags functions returning bare errors
+guard "no-bare-error-returns" {
+  scope:   "**/*.go"
+  assert:  no file contains "return err" near "func "
+  on_fail: warn, show_diff
+}
+
+// ─── Fix 2: errors.New without wrapping ──────────────────────────────────
+fix wrapErrorsNew {
+  pattern: { errors.New("$MSG") }
+  replace: { fmt.Errorf("$MSG: %w", err) }
+  scope:   "**/*.go"
+  severity: bug
+  note:    "Wrap errors with context so callers can inspect the error chain."
+}
+
+apply fix wrapErrorsNew to project preview
