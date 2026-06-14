@@ -1,0 +1,38 @@
+// fix: TypeScript strict null and undefined checks
+// lang: TypeScript
+// severity: bug
+// Replaces loose equality null checks with strict equality.
+// Also upgrades unsafe property access to optional chaining.
+
+// ─── Fix 1: == null → === null ────────────────────────────────────────────
+fix strictNullEquality {
+  pattern: { == null }
+  replace: { === null }
+  scope:   "**/*.ts"
+  severity: bug
+  note:    "Loose equality (==) matches both null and undefined unintentionally. Use strict (===) or optional chaining."
+}
+
+// ─── Fix 2: != null → !== null ────────────────────────────────────────────
+fix strictNullInequality {
+  pattern: { != null }
+  replace: { !== null }
+  scope:   "**/*.ts"
+  severity: bug
+  note:    "Use !== for strict null inequality checks."
+}
+
+// ─── Fix 3: == undefined → === undefined ─────────────────────────────────
+fix strictUndefinedEquality {
+  pattern: { == undefined }
+  replace: { === undefined }
+  scope:   "**/*.ts"
+  severity: bug
+  note:    "Use strict equality for undefined checks."
+}
+
+// Apply all null fixes to the project
+// Remove 'preview' to apply for real
+apply fix strictNullEquality    to project preview
+apply fix strictNullInequality  to project preview
+apply fix strictUndefinedEquality to project preview
