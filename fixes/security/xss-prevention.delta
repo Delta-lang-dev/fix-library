@@ -1,0 +1,39 @@
+// fix: XSS prevention — unsafe innerHTML and dangerouslySetInnerHTML
+// lang: TypeScript, JavaScript
+// severity: security
+// Flags direct innerHTML assignment and React dangerouslySetInnerHTML usage.
+
+// ─── Guard: no unsafe innerHTML ──────────────────────────────────────────
+guard "no-unsafe-inner-html" {
+  scope:   "src/**/*.ts"
+  assert:  no file contains "innerHTML ="
+  on_fail: block_apply, show_diff
+}
+
+guard "no-dangerous-set-inner-html" {
+  scope:   "src/**/*.tsx"
+  assert:  no file contains "dangerouslySetInnerHTML"
+  on_fail: warn, show_diff
+}
+
+// ─── Fix: innerHTML → textContent for plain text ─────────────────────────
+fix innerHtmlToTextContent {
+  pattern: { $EL.innerHTML = $VALUE }
+  replace: { $EL.textContent = $VALUE }
+  scope:   "src/**/*.ts"
+  severity: security
+  note:    "Use textContent for plain text. Only use innerHTML with sanitized input."
+}
+
+// ─── Trace: track where user input flows to DOM ──────────────────────────
+trace userInputToDom in "src/" {
+  language: TypeScript
+  origin:   req.body
+  follow:   assignments, function_calls, returns
+  report:   full_chain
+  flag:     "any path that reaches innerHTML"
+  flag:     "any path that reaches dangerouslySetInnerHTML"
+  flag:     "any path that reaches document.write"
+}
+
+apply fix innerHtmlToTextContent to project preview

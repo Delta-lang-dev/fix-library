@@ -1,0 +1,38 @@
+// migration: Next.js 13 -> 14 API changes
+// lang: TypeScript
+// severity: bug
+// Covers the App Router changes introduced in Next.js 14.
+
+migrate "Next.js 13 to 14" in TypeScript {
+  // getStaticProps / getServerSideProps removed in App Router
+  // These should be converted to async Server Components or Route Handlers
+  rename: getStaticProps    -> generateStaticParams
+  rename: getServerSideProps -> fetch  // approximate — needs manual review
+
+  // next/router → next/navigation in App Router
+  rename: useRouter         -> useRouter         // from next/navigation
+  rename: usePathname       -> usePathname        // from next/navigation
+  rename: useSearchParams   -> useSearchParams    // from next/navigation
+
+  // next/head → metadata export
+  rename: Head              -> metadata
+
+  // next/image changes
+  rename: layout            -> fill              // image prop rename
+
+  scope: "src/**/*.tsx"
+}
+
+// ─── Guard: App Router structure ─────────────────────────────────────────
+guard "app-router-structure" {
+  scope:   "app/**/*.tsx"
+  assert:  no file imports from "next/router"
+  on_fail: warn, show_diff
+}
+
+guard "no-legacy-data-fetching" {
+  scope:   "app/**/*.tsx"
+  assert:  no file contains "getStaticProps"
+  assert:  no file contains "getServerSideProps"
+  on_fail: block_apply, show_diff
+}

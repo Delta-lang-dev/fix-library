@@ -1,0 +1,45 @@
+// fix: Add Python type hints to untyped functions
+// lang: Python
+// severity: style
+// Detection-based: uses guard to find untyped functions.
+// The actual type hints must be added manually — Delta can detect
+// missing annotations but cannot infer types automatically.
+
+// ─── Guard: all public functions must have return type annotations ─────────
+guard "require-return-types" {
+  scope:   "src/**/*.py"
+  assert:  all public functions have return type annotation
+  on_fail: warn, show_diff
+}
+
+// ─── Guard: all function parameters must be annotated ─────────────────────
+guard "require-param-types" {
+  scope:   "src/**/*.py"
+  assert:  all function parameters have type annotation
+  on_fail: warn
+}
+
+// ─── Fix: bare None returns → None annotation ────────────────────────────
+fix noneReturnType {
+  pattern: { def $FN($ARGS):
+    $BODY
+    return }
+  replace: { def $FN($ARGS) -> None:
+    $BODY
+    return }
+  scope:   "**/*.py"
+  severity: style
+  note:    "Functions that return nothing should be annotated -> None."
+}
+
+// ─── Fix: convert Any imports to specific types ───────────────────────────
+fix removeAnyImport {
+  pattern: { from typing import Any }
+  replace: { # TODO: replace Any with specific types }
+  scope:   "**/*.py"
+  severity: style
+  note:    "Avoid importing Any — it defeats the purpose of type hints."
+}
+
+apply fix noneReturnType  to project preview
+apply fix removeAnyImport to project preview
