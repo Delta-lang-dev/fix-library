@@ -1,0 +1,25 @@
+// fix: Migrate Python string formatting to f-strings
+// lang: Python
+// severity: style
+// Replaces % formatting and .format() calls with f-strings (Python 3.6+)
+
+// ─── Fix 1: % string formatting ──────────────────────────────────────────
+fix percentFormatting {
+  pattern: { "%s" % $VAR }
+  replace: { f"{$VAR}" }
+  scope:   "**/*.py"
+  severity: style
+  note:    "f-strings are faster and more readable than % formatting."
+}
+
+// ─── Fix 2: Simple .format() calls ───────────────────────────────────────
+fix dotFormat {
+  pattern: { "{}".format($VAR) }
+  replace: { f"{$VAR}" }
+  scope:   "**/*.py"
+  severity: style
+  note:    "Replace .format() with f-strings for clarity."
+}
+
+apply fix percentFormatting to project preview
+apply fix dotFormat         to project preview
