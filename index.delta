@@ -1,0 +1,26 @@
+// Delta Fix Library — Index
+// Import the fixes you need into your own .delta file:
+//
+//   import nullFixes from "./fixes/typescript/null-checks.delta"
+//   import sqlFixes  from "./fixes/security/sql-injection.delta"
+//
+// Or run them directly:
+//   delta run fixes/typescript/null-checks.delta --preview
+//   delta run fixes/security/sql-injection.delta
+
+// ─── TypeScript ───────────────────────────────────────────────────────────
+// fixes/typescript/null-checks.delta        — strict null/undefined equality
+// fixes/typescript/async-modernisation.delta — Promise chains → async/await
+// fixes/typescript/import-cleanup.delta     — wildcard imports, barrel paths
+
+// ─── Python ──────────────────────────────────────────────────────────────
+// fixes/python/f-string-migration.delta     — % and .format() → f-strings
+
+// ─── Go ──────────────────────────────────────────────────────────────────
+// fixes/go/error-handling.delta             — bare errors → wrapped errors
+
+// ─── Security ────────────────────────────────────────────────────────────
+// fixes/security/sql-injection.delta        — parameterised queries + trace
+
+// ─── Migrations ──────────────────────────────────────────────────────────
+// fixes/migrations/react-18.delta           — React 17 → 18 API changes
