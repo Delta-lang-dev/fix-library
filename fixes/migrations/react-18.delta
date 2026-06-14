@@ -1,0 +1,22 @@
+// migration: React 17 -> React 18 API changes
+// lang: TypeScript
+// severity: bug
+// Updates React 17 APIs removed or changed in React 18.
+
+migrate "React 17 to 18" in TypeScript {
+  // ReactDOM.render → createRoot
+  rename: ReactDOM.render -> root.render
+  // Legacy ReactDOM.unmountComponentAtNode → root.unmount
+  rename: ReactDOM.unmountComponentAtNode -> root.unmount
+  // Batching is automatic in React 18 — unstable_batchedUpdates still works
+  // but is no longer needed in most cases
+  remove: deprecated unstable_batchedUpdates
+  scope:  "src/**/*.tsx"
+}
+
+// Guard: ensure new createRoot pattern is used
+guard "react-18-root-api" {
+  scope:   "src/**/*.tsx"
+  assert:  fn createRoot() exists
+  on_fail: warn, show_diff
+}

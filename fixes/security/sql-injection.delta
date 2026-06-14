@@ -1,0 +1,33 @@
+// fix: SQL injection prevention
+// lang: TypeScript
+// severity: security
+// Flags raw string interpolation in SQL queries.
+// All user input must go through parameterised queries.
+
+// ─── Guard: no template literal SQL ──────────────────────────────────────
+guard "no-raw-sql-interpolation" {
+  scope:   "src/**/*.ts"
+  assert:  no raw f-string SQL queries exist
+  on_fail: block_apply, show_diff
+}
+
+// ─── Fix: Raw string SQL → parameterised ─────────────────────────────────
+fix parameterisedQueries {
+  pattern: { db.query("SELECT * FROM users WHERE id = " + $ID) }
+  replace: { db.query("SELECT * FROM users WHERE id = ?", [$ID]) }
+  scope:   "**/*.ts"
+  severity: security
+  note:    "Never concatenate user input into SQL. Use parameterised queries."
+}
+
+// ─── Trace: track where user input flows into DB calls ───────────────────
+trace userInput in "src/" {
+  language: TypeScript
+  origin:   req.body
+  follow:   assignments, function_calls, returns
+  report:   full_chain
+  flag:     "any path that reaches db.query without validation"
+  flag:     "any path that reaches db.execute without sanitize"
+}
+
+apply fix parameterisedQueries to project preview
