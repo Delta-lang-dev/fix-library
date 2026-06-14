@@ -1,0 +1,46 @@
+// fix: TypeScript performance improvements
+// lang: TypeScript
+// severity: perf
+// Common performance patterns: unnecessary array spreads, inefficient
+// object construction, repeated DOM queries.
+
+// ─── Fix 1: [...arr].filter() → arr.filter() ─────────────────────────────
+fix unnecessaryArraySpread {
+  pattern: { [...$ARR].filter($FN) }
+  replace: { $ARR.filter($FN) }
+  scope:   "**/*.ts"
+  severity: perf
+  note:    "Spreading before filter creates an unnecessary copy. Filter operates on original array without mutation."
+}
+
+// ─── Fix 2: [...arr].map() → arr.map() ───────────────────────────────────
+fix unnecessaryArraySpreadMap {
+  pattern: { [...$ARR].map($FN) }
+  replace: { $ARR.map($FN) }
+  scope:   "**/*.ts"
+  severity: perf
+  note:    "map() does not mutate the array. No need to spread first."
+}
+
+// ─── Fix 3: Array.from(set) → [...set] ───────────────────────────────────
+fix arrayFromSet {
+  pattern: { Array.from($SET) }
+  replace: { [...$SET] }
+  scope:   "**/*.ts"
+  severity: perf
+  note:    "Spread syntax is slightly faster and more idiomatic for iterables."
+}
+
+// ─── Fix 4: JSON.parse(JSON.stringify(x)) → structuredClone(x) ───────────
+fix deepCloneModern {
+  pattern: { JSON.parse(JSON.stringify($OBJ)) }
+  replace: { structuredClone($OBJ) }
+  scope:   "**/*.ts"
+  severity: perf
+  note:    "structuredClone is native, faster, and handles more types than JSON round-trip. Requires Node 17+ / modern browsers."
+}
+
+apply fix unnecessaryArraySpread    to project preview
+apply fix unnecessaryArraySpreadMap to project preview
+apply fix arrayFromSet              to project preview
+apply fix deepCloneModern           to project preview
