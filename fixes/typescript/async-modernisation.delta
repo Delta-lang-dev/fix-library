@@ -1,0 +1,33 @@
+// fix: Modernise Promise chains to async/await
+// lang: TypeScript
+// severity: style
+// Flags Promise.then() chains that can be refactored to async/await.
+// Note: These are detection fixes — the replace block shows the pattern.
+// Complex chains may need manual review after applying.
+
+// ─── Fix 1: .then(fn).catch(fn) → async/await ────────────────────────────
+fix promiseChainToAsync {
+  pattern: { $PROMISE.then($THEN_FN).catch($CATCH_FN) }
+  replace: {
+    try {
+      const result = await $PROMISE;
+      $THEN_FN(result);
+    } catch (error) {
+      $CATCH_FN(error);
+    }
+  }
+  scope:   "**/*.ts"
+  severity: style
+  note:    "async/await is more readable than .then().catch() chains."
+}
+
+// ─── Fix 2: return new Promise wrapping async logic ───────────────────────
+// Detection only — flags functions that manually construct Promises
+// when they could simply be declared async.
+guard "no-unnecessary-promise-constructors" {
+  scope:   "src/**/*.ts"
+  assert:  no file contains "new Promise" near "async function"
+  on_fail: warn, show_diff
+}
+
+apply fix promiseChainToAsync to project preview
