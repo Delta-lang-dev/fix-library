@@ -1,0 +1,27 @@
+// fix: TypeScript import hygiene
+// lang: TypeScript
+// severity: style
+// Flags common import anti-patterns: importing from barrel re-exports
+// when direct imports are available, and wildcard imports.
+
+// ─── Fix 1: Wildcard imports from specific packages ───────────────────────
+// These are guard-based (detection) rather than auto-fix since
+// wildcard imports may be intentional in some cases.
+
+guard "no-wildcard-react-imports" {
+  scope:   "src/**/*.tsx"
+  assert:  no file imports from "react" near "* as React"
+  on_fail: warn
+}
+
+// ─── Fix 2: Deep barrel import paths → direct imports ────────────────────
+// Example: import { Button } from "../../components/index" → "../../components/Button"
+fix directComponentImports {
+  pattern: { from "$PATH/index" }
+  replace: { from "$PATH" }
+  scope:   "src/**/*.ts"
+  severity: style
+  note:    "Import directly from the module rather than through an index barrel."
+}
+
+apply fix directComponentImports to project preview
