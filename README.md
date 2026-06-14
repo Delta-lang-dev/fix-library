@@ -1,54 +1,66 @@
-# Δ Delta Fix Library
+# Delta Fix Library
 
-The official standard library of reusable `.delta` transformation files for the [Delta Language](https://github.com/Delta-lang-dev/Delta).
+Community library of reusable [Delta (Δ)](https://delta-lang.dev) fix and patch transforms.
 
 ## What is this?
 
-Instead of writing the same fix patterns over and over, the fix library gives you ready-made Delta programs for the most common code transformations. Install the Delta CLI and apply any fix with one command.
+The fix library is a collection of `.delta` files covering the most common code transformation patterns — null checks, async modernisation, API migrations, security fixes, and more.
 
-## Usage
+Apply any fix to your project in seconds:
 
 ```bash
-# Install Delta CLI
-npm install -g @delta-lang/cli
+# Preview what will change
+delta run fixes/typescript/null-checks.delta --preview
 
-# Apply a fix from this library to your project
-delta run common/sql-injection.delta --preview
-delta run common/sql-injection.delta
+# Apply it
+delta run fixes/typescript/null-checks.delta
 ```
 
-## Available Fixes
+## Structure
 
-### common/
-| File | What it fixes | Languages |
-|---|---|---|
-| `sql-injection.delta` | Raw f-string SQL queries | Python |
-| `null-checks.delta` | Missing null guards | TypeScript, JavaScript |
-| `off-by-one.delta` | Inclusive loop bounds | TypeScript, JavaScript |
-| `missing-await.delta` | Missing await on async calls | TypeScript, JavaScript |
-
-### typescript/
-| File | What it does |
-|---|---|
-| `react-v17-to-v18.delta` | Migrates React 17 to React 18 |
-| `strict-mode.delta` | Adds strict TypeScript settings |
-
-### python/
-| File | What it does |
-|---|---|
-| `f-string-safety.delta` | Converts unsafe f-string SQL to parameterized queries |
-| `type-hints.delta` | Adds missing type hints to function signatures |
+```
+fixes/
+  typescript/
+    null-checks.delta       — strict equality, optional chaining
+    async-modernisation.delta — Promise chains → async/await
+    import-cleanup.delta    — unused imports, barrel exports
+  python/
+    type-hints.delta        — add type annotations to functions
+    f-string-migration.delta — % and .format() → f-strings
+  go/
+    error-handling.delta    — bare error returns → wrapped errors
+  security/
+    sql-injection.delta     — raw string SQL → parameterised queries
+    secret-exposure.delta   — hardcoded secrets → env vars
+  migrations/
+    react-18.delta          — React 17 → 18 API changes
+    next-14.delta           — Next.js 13 → 14 API changes
+```
 
 ## Contributing
 
-Want to add a fix? Read [CONTRIBUTING.md](https://github.com/Delta-lang-dev/Delta/blob/main/CONTRIBUTING.md) and open a pull request.
+1. Fork this repo
+2. Add your `.delta` file in the appropriate directory
+3. Include a comment block at the top with: what it fixes, language, severity
+4. Open a PR
 
-## Links
+## Fix Format
 
-- [Delta Compiler](https://github.com/Delta-lang-dev/Delta)
-- [VS Code Extension](https://github.com/Delta-lang-dev/vscode-delta)
-- [Website](https://delta-lang.dev)
+Each fix file follows this convention:
 
-## License
+```delta
+// fix: <short description>
+// lang: <TypeScript | Python | Go | ...>
+// severity: <bug | perf | style | security>
+// author: <your handle>
 
-MIT
+fix myFix {
+  pattern: { old pattern }
+  replace: { new pattern }
+  scope:   "**/*.ts"
+  severity: bug
+  note:    "why this matters"
+}
+
+apply fix myFix to project preview
+```
